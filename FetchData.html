@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRice Data Fetcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fetch OpenRice Restaurant Data</h1>
+    <button id="fetchData">Fetch Data</button>
+    <script>
+        document.getElementById('fetchData').addEventListener('click', async () => {
+            const location = 'The Laguna Mall';
+            const radius = 500;
+            const url = `https://www.openrice.com/en/hongkong/restaurants?loc=${location}&radius=${radius}`;
+
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const restaurants = [];
+
+                doc.querySelectorAll('.restaurant-item').forEach(item => {
+                    restaurants.push({
+                        objected: item.getAttribute('data-objected'),
+                        name_chi: item.querySelector('.name-chinese')?.textContent.trim(),
+                        name_eng: item.querySelector('.name-english')?.textContent.trim(),
+                        address_chi: item.querySelector('.address-chinese')?.textContent.trim(),
+                        address_eng: item.querySelector('.address-english')?.textContent.trim(),
+                        category_chi: item.querySelector('.category-chinese')?.textContent.trim(),
+                        category_eng: item.querySelector('.category-english')?.textContent.trim(),
+                        category2_chi: item.querySelector('.category2-chinese')?.textContent.trim(),
+                        category2_eng: item.querySelector('.category2-english')?.textContent.trim(),
+                        category3_chi: item.querySelector('.category3-chinese')?.textContent.trim(),
+                        category3_eng: item.querySelector('.category3-english')?.textContent.trim(),
+                        district_chi: item.querySelector('.district-chinese')?.textContent.trim(),
+                        district_eng: item.querySelector('.district-english')?.textContent.trim(),
+                        poiurl: item.getAttribute('href'),
+                        lat: item.getAttribute('data-lat'),
+                        long: item.getAttribute('data-long'),
+                        price: item.getAttribute('data-price'),
+                        scorecry: item.getAttribute('data-scorecry'),
+                        scoreok: item.getAttribute('data-scoreok'),
+                        scoresmile: item.getAttribute('data-scoresmile'),
+                        rid: item.getAttribute('data-rid')
+                    });
+                });
+
+                // Prepare to update JSON on GitHub
+                const json = JSON.stringify(restaurants, null, 4);
+                await updateJsonOnGitHub(json);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+
+        async function updateJsonOnGitHub(jsonData) {
+            const url = 'https://api.github.com/repos/jusphonia/LunchMap/contents/openrice.json';
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'token YOUR_GITHUB_TOKEN',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'Update restaurant data',
+                    content: btoa(jsonData),
+                    sha: 'EXISTING_FILE_SHA' // Get this from the current file's metadata
+                })
+            });
+
+            if (response.ok) {
+                console.log('JSON file updated successfully.');
+            } else {
+                console.error('Failed to update JSON file:', await response.json());
+            }
+        }
+    </script>
+</body>
+</html>
