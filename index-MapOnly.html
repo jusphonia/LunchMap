@@ -26,25 +26,25 @@
         fetch('SampleOpenRice.json')
             .then(response => response.json())
             .then(data => {
-                data.forEach(geometry => {
+                data.features.forEach(geometry => {
                     // Ensure lat and lng exist for the marker
-                    if (geometry.lat && geometry.lng) {
+                    if (geometry.lat && geometry.long) {
                         // Create popup content dynamically from all JSON properties
                         let popupContent = '';
-                        for (const [key, value] of Object.entries(location)) {
+                        for (const [key, value] of Object.entries(geometry)) {
                             popupContent += `<b>${key}</b>: ${value}<br>`;
                         }
                         // Add marker with dynamic popup
-                        L.marker([geometry.lat, geometry.lng])
+                        L.marker([geometry.lat, geometry.long])
                             .addTo(map)
                             .bindPopup(popupContent);
                     } else {
-                        console.warn('Skipping location without lat/lng:', location);
+                        console.warn('Skipping location without lat/long:', geometry);
                     }
                 });
                 // Adjust map to fit all markers
                 if (data.length > 0) {
-                    const bounds = L.latLngBounds(data.filter(loc => loc.lat && loc.lng).map(loc => [loc.lat, loc.lng]));
+                    const bounds = L.latLngBounds(data.filter(loc => loc.lat && loc.long).map(loc => [loc.lat, loc.long]));
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
             })
