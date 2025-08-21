@@ -72,7 +72,7 @@
         const tableBody = document.querySelector('#data-table tbody');
 
         data.forEach(item => {
-          const { lat, long } = item.location;
+          const { lat, long } = item.geometry;
 
           // Add marker to map
           const popupContent = `
