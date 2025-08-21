@@ -15,7 +15,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Initialize the map
-        const map = L.map('map').setView([22.3088, 114.1086977], 16); // Default center (London) and zoom level
+        const map = L.map('map').setView([22.3088208, 114.1885244], 17); // Default center (London) and zoom level
 
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,16 +26,16 @@
         fetch('SampleOpenRice.json')
             .then(response => response.json())
             .then(data => {
-                data.forEach(location => {
+                data.forEach(geometry => {
                     // Ensure lat and lng exist for the marker
-                    if (location.lat && location.lng) {
+                    if (geometry.lat && geometry.lng) {
                         // Create popup content dynamically from all JSON properties
                         let popupContent = '';
                         for (const [key, value] of Object.entries(location)) {
                             popupContent += `<b>${key}</b>: ${value}<br>`;
                         }
                         // Add marker with dynamic popup
-                        L.marker([location.lat, location.lng])
+                        L.marker([geometry.lat, geometry.lng])
                             .addTo(map)
                             .bindPopup(popupContent);
                     } else {
